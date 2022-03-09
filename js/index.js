@@ -1,29 +1,35 @@
-/* global - simble object to represent menu items & respective prices */
-const menu = {
-    hotdogs: 4,
-    fries: 3.50,
-    soda: 1.50,
-    sauerkraut: 1
-}
-
-/* global - place order btn */
+/******************** GLOBAL VARIABLES ********************/
 const placeOrderBtn = document.getElementById("begin-order-btn");
-/* global - submit order btn */
 const submitOrderBtn = document.getElementById("submit-order-btn");
-/* global - modify new order btn */
 const modifyOrderBtn = document.getElementById("modify-order-btn");
-
-/* global - total order element */
 const calculatedTotal = document.getElementById("calculated-amount");
-/* global - final order element*/
 const finalOrder = document.getElementById("ordered-items");
 
-/* global - final order array */
-var order = [];
-/* global - total order amount */
-var total = 0;
+/* Function objects for food */
+function Food(name, price){
+    this.name = name;
+    this.price = price;
+}
+
+/* Function objects for order */
+function Order(){
+    this.orderItems = addItemsToOrder;
+    this.total = calculateTotal;
+}
+
+const hotdogs = new Food("hotdogs", 4);
+const fries = new Food("fries", 3.50);
+const soda = new Food("soda", 1.50);
+const sauerkraut = new Food("sauerkraut", 1);
+
+const menu = [hotdogs, fries, soda, sauerkraut];
+
+/***************** END OF GLOBAL VARIABLES *****************/
 
 window.onload = () => {
+    var orderedItems = [];    
+    var total = 0;
+
     placeOrderBtn.addEventListener("click", () =>{
         // hide welcome page content
        updateElementStyle("welcome-page", "none");
@@ -33,14 +39,18 @@ window.onload = () => {
     });
 
     submitOrderBtn.addEventListener("click", ()=>{
-        calculateTotal();
-        displayReceipt();
+
+        var newOrder = new Order();
+        orderedItems = newOrder.orderItems();
+        total = newOrder.total(orderedItems);
+
+        displayReceipt(orderedItems, total);
     });
 
     modifyOrderBtn.addEventListener("click", ()=>{
         // clearing total, order, and final order array
         total = 0;
-        order = [];
+        orderedItems = [];
         finalOrder.innerHTML = "";
 
         // hide welcome page content        
@@ -54,25 +64,58 @@ window.onload = () => {
     });
 }
 
-// Function to calculate final order
-function calculateTotal(){
-    for(item in menu){
-        let amount = parseFloat(document.getElementById(item).value);
 
+/********************* UTILITY METHODS *********************/
+/*  Function to calculate final order
+    Parameters: 
+        order - list of menu items that were ordered
+*/
+function calculateTotal(order){
+    let sum = 0;
+    for(item in order){
+        // for each item in order - find the corresponding object from the menu
+        let menuItem;
+        for(let i=0; i<menu.length; i++){
+            if(menu[i].name == item){
+                menuItem = menu[i];
+            }else{
+                continue;
+            }
+        }
+        
+        let amount = parseFloat(document.getElementById(menuItem.name).value);
         if(!isNaN(amount)){
             // calculate price & add to total
-            let price = menu[item];
+            let price = menuItem.price;
             let subTotal = amount * price;
-            total += subTotal;
-
-            // add item & amount to final order
-            order[item] = amount;
+            sum += subTotal;
         }
     }
+    return sum;
 }
 
-// Function to display receipt
-function displayReceipt(){
+/*  Function to retrieve items that were orderd & return order list
+    Parameters: none
+*/
+function addItemsToOrder(){
+    let orderList = [];
+    for(let i=0; i<menu.length; i++){
+        let menuItem = menu[i].name;
+        let amount = parseFloat(document.getElementById(menuItem).value);
+
+        if(!isNaN(amount)){
+            orderList[menuItem] = amount;
+        }
+    }
+    return orderList;
+}
+
+/*  Function to display receipt
+    Parameters: 
+        order - items that are ordered, 
+        total - total calculated amount for order
+*/   
+function displayReceipt(order, total){
     // hide order form
     updateElementStyle("order-content", "none");
     
@@ -86,14 +129,18 @@ function displayReceipt(){
 
     calculatedTotal.innerHTML = dollarUS.format(total);
 
-    for(food in order){
+    for(item in order){
         let foodDiv = document.createElement("div");
-        foodDiv.innerHTML = food + " x " + order[food];
+        foodDiv.innerHTML = item + " x " + order[item];
         finalOrder.appendChild(foodDiv);
     }
 }
 
-// Function to show/hide specific page based on element ID
+/*  Function to show/hide specific page based on element ID
+    Parameters: 
+        elementID - corresponds to html element id
+        styleType - corresponds to css display type
+    */
 function updateElementStyle(elementID, styleType){
     let elementDiv = document.getElementById(elementID);
     elementDiv.style.display = styleType;

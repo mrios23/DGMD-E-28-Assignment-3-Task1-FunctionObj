@@ -22,7 +22,7 @@ form div{
     padding-bottom: 15px;
 }
 
-#submit-order-btn, #begin-order-btn{
+.btn-style{
     font-size: large;
     font-family: fantasy;
     width: max-content;
