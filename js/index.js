@@ -5,13 +5,13 @@ const modifyOrderBtn = document.getElementById("modify-order-btn");
 const calculatedTotal = document.getElementById("calculated-amount");
 const finalOrder = document.getElementById("ordered-items");
 
-/* Function objects for food */
+/* Constructor for food function object */
 function Food(name, price){
     this.name = name;
     this.price = price;
 }
 
-/* Function objects for order */
+/* Constructor for order function object */
 function Order(){
     this.orderItems = addItemsToOrder;
     this.total = calculateTotal;
